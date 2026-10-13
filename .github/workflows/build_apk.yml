@@ -12,10 +12,14 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Install System Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y wget unzip openjdk-17-jdk
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
 
       - name: Setup Godot and Export Templates
         run: |
@@ -35,7 +39,7 @@ jobs:
         run: mkdir -p build/android
 
       - name: Export to Android APK
-        run: godot --headless --export-release "Android" build/android/game.apk
+        run: godot --headless --export-debug "Android" build/android/game.apk
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
