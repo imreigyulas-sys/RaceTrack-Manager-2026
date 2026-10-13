@@ -53,7 +53,7 @@ jobs:
           unzip -q Godot_v${GODOT_VERSION}_export_templates.tpz -d ~/.local/share/godot/export_templates/
           cp -r ~/.local/share/godot/export_templates/templates*/* ~/.local/share/godot/export_templates/4.3.stable/ 2>/dev/null || cp -r ~/.local/share/godot/export_templates/templates/* ~/.local/share/godot/export_templates/4.3.stable/ 2>/dev/null || true
 
-          echo "=== 6. export_presets.cfg teljes generálása az összes Godot 4 mezővel ==="
+          echo "=== 6. export_presets.cfg generálása üres keystore hibák nélkül ==="
           cat << 'EOF' > export_presets.cfg
           [preset.0]
 
@@ -81,12 +81,6 @@ jobs:
           package/app_name="Palyamenedzser Tycoon"
           version/code=1
           version/name="1.0"
-          keystore/debug=""
-          keystore/debug_user=""
-          keystore/debug_password=""
-          keystore/release=""
-          keystore/release_user=""
-          keystore/release_password=""
           permissions/custom_permissions=PackedStringArray()
           features/immersive_mode=true
           dot_net/export_native_libs=true
