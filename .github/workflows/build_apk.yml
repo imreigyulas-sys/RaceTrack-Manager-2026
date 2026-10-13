@@ -1,3 +1,4 @@
+
 name: Build Android APK
 
 on:
@@ -12,7 +13,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Build Android APK (Verbose & Debug)
+      - name: Build Android APK (All-in-One Script)
         run: |
           set -e
           echo "=== 1. Rendszerfüggőségek és Java ==="
@@ -42,7 +43,7 @@ jobs:
           export/android/android_sdk_path = "$ANDROID_HOME"
           EOF
 
-          echo "=== 5. Godot 4.3 és export sablonok letöltése ==="
+          echo "=== 5. Godot 4.3 és export sablonok letöltése és helyes mappázása ==="
           GODOT_VERSION="4.3-stable"
           wget -q https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_linux.x86_64.zip
           unzip -q Godot_v${GODOT_VERSION}_linux.x86_64.zip
@@ -51,19 +52,14 @@ jobs:
           mkdir -p ~/.local/share/godot/export_templates/4.3.stable
           wget -q https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_export_templates.tpz
           unzip -q Godot_v${GODOT_VERSION}_export_templates.tpz -d ~/.local/share/godot/export_templates/
-          mv ~/.local/share/godot/export_templates/templates* ~/.local/share/godot/export_templates/4.3.stable
+          
+          # Sablonok átmásolása a helyes struktúrába
+          cp -r ~/.local/share/godot/export_templates/templates/* ~/.local/share/godot/export_templates/4.3.stable/
+          rm -rf ~/.local/share/godot/export_templates/templates
 
-          echo "=== 6. Projektfájlok és Preset ellenőrzése ==="
-          ls -la
-          if [ -f "export_presets.cfg" ]; then
-            echo "export_presets.cfg sikeresen megtalálva a projektben."
-          else
-            echo "HIBA: Az export_presets.cfg hiányzik! Biztosan beletetted a Godot export beállításokat a Git repository-ba?"
-          fi
-
-          echo "=== 7. APK exportálás részletes naplózással ==="
+          echo "=== 6. APK exportálás (Debug) ==="
           mkdir -p build/android
-          godot --headless --verbose --export-debug "Android" build/android/game.apk
+          godot --headless --export-debug "Android" build/android/game.apk
           echo "Sikeres exportálás!"
 
       - name: Upload APK Artifact
