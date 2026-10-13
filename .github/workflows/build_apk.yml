@@ -8,20 +8,39 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container:
-      image: barichello/godot-ci:4.3.stable
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Download Godot and Export Templates
+        run: |
+          echo "Godot letöltése..."
+          wget -q https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_linux.x86_64.zip
+          unzip -q Godot_v4.3-stable_linux.x86_64.zip
+          sudo mv Godot_v4.3-stable_linux.x86_64 /usr/local/bin/godot
+
+          echo "Export sablonok letöltése..."
+          wget -q https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_export_templates.tpz
+          mkdir -p ~/.local/share/godot/export_templates/4.3.stable
+          unzip -q Godot_v4.3-stable_export_templates.tpz -d ~/.local/share/godot/export_templates/
+          mv ~/.local/share/godot/export_templates/templates* ~/.local/share/godot/export_templates/4.3.stable
 
       - name: Create export directory
         run: mkdir -p build/android
 
-      - name: Export to Android
-        run: |
-          godot --headless --export-release "Android" build/android/game.apk
+      - name: Export to Android APK
+        run: godot --headless --export-release "Android" build/android/game.apk
 
-      - name: Upload APK
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: game-apk
