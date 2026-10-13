@@ -1,0 +1,6 @@
+[application]
+
+config/name="Palya Menedzser Tycoon"
+run/main_scene="res://MainUI.tscn"
+config/features=PackedStringArray("4.3", "Forward Plus")
+config/icon="res://icon.svg"
