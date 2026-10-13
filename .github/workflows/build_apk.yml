@@ -12,14 +12,14 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Build Android APK (All-in-One Script)
+      - name: Build Android APK (Verbose & Debug)
         run: |
           set -e
-          echo "=== 1. Java és rendszerfüggőségek telepítése ==="
+          echo "=== 1. Rendszerfüggőségek és Java ==="
           sudo apt-get update
           sudo apt-get install -y wget unzip openjdk-17-jdk
 
-          echo "=== 2. Android SDK beállítása ==="
+          echo "=== 2. Android SDK telepítése ==="
           ANDROID_HOME=$HOME/android-sdk
           mkdir -p $ANDROID_HOME/cmdline-tools
           wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O cmdline-tools.zip
@@ -28,7 +28,7 @@ jobs:
           
           export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
 
-          echo "=== 3. SDK licenszek elfogadása és eszközök telepítése ==="
+          echo "=== 3. SDK licenszek elfogadása ==="
           yes | sdkmanager --licenses || true
           sdkmanager --update
           sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
@@ -53,9 +53,17 @@ jobs:
           unzip -q Godot_v${GODOT_VERSION}_export_templates.tpz -d ~/.local/share/godot/export_templates/
           mv ~/.local/share/godot/export_templates/templates* ~/.local/share/godot/export_templates/4.3.stable
 
-          echo "=== 6. APK exportálás (Debug) ==="
+          echo "=== 6. Projektfájlok és Preset ellenőrzése ==="
+          ls -la
+          if [ -f "export_presets.cfg" ]; then
+            echo "export_presets.cfg sikeresen megtalálva a projektben."
+          else
+            echo "HIBA: Az export_presets.cfg hiányzik! Biztosan beletetted a Godot export beállításokat a Git repository-ba?"
+          fi
+
+          echo "=== 7. APK exportálás részletes naplózással ==="
           mkdir -p build/android
-          godot --headless --export-debug "Android" build/android/game.apk
+          godot --headless --verbose --export-debug "Android" build/android/game.apk
           echo "Sikeres exportálás!"
 
       - name: Upload APK Artifact
