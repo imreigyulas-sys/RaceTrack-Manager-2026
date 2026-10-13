@@ -1,4 +1,3 @@
-
 name: Build Android APK
 
 on:
@@ -43,7 +42,7 @@ jobs:
           export/android/android_sdk_path = "$ANDROID_HOME"
           EOF
 
-          echo "=== 5. Godot 4.3 és export sablonok letöltése és helyes mappázása ==="
+          echo "=== 5. Godot 4.3 és export sablonok letöltése ==="
           GODOT_VERSION="4.3-stable"
           wget -q https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_linux.x86_64.zip
           unzip -q Godot_v${GODOT_VERSION}_linux.x86_64.zip
@@ -52,12 +51,36 @@ jobs:
           mkdir -p ~/.local/share/godot/export_templates/4.3.stable
           wget -q https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_export_templates.tpz
           unzip -q Godot_v${GODOT_VERSION}_export_templates.tpz -d ~/.local/share/godot/export_templates/
-          
-          # Sablonok átmásolása a helyes struktúrába
-          cp -r ~/.local/share/godot/export_templates/templates/* ~/.local/share/godot/export_templates/4.3.stable/
-          rm -rf ~/.local/share/godot/export_templates/templates
+          cp -r ~/.local/share/godot/export_templates/templates*/* ~/.local/share/godot/export_templates/4.3.stable/ 2>/dev/null || cp -r ~/.local/share/godot/export_templates/templates/* ~/.local/share/godot/export_templates/4.3.stable/ 2>/dev/null || true
 
-          echo "=== 6. APK exportálás (Debug) ==="
+          echo "=== 6. export_presets.cfg automatikus generálása ==="
+          cat << 'EOF' > export_presets.cfg
+          [preset.0]
+
+          name="Android"
+          platform="Android"
+          runnable=true
+          dedicated_server=false
+          custom_features=""
+          export_filter="all_resources"
+          include_filter=""
+          exclude_filter=""
+          export_path=""
+          encryption_include_filter=""
+          encryption_exclude_filter=""
+          encrypt_pck=false
+          encrypt_directory=false
+          file_encryption_key=""
+
+          [preset.0.options]
+          command_line/arguments=""
+          architectures/arm64_v8a=true
+          architectures/armeabi_v7a=false
+          custom_build/use_custom_build=false
+          package/unique_name="org.godot.palyamenedzsertycoon"
+          EOF
+
+          echo "=== 7. APK exportálás (Debug) ==="
           mkdir -p build/android
           godot --headless --export-debug "Android" build/android/game.apk
           echo "Sikeres exportálás!"
